@@ -1,0 +1,2 @@
+TextColor:255, 255, 255, 220;
+File:/res/window/border_hot;

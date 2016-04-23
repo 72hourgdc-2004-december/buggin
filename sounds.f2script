@@ -1,0 +1,25 @@
+Dim SoundFX
+Set SoundFX = F2Collection()
+
+Sub SFX(Name)
+	SoundFX(Name).Play
+End Sub
+
+Sub SFXAt(Name, Sprite)
+	SoundFX(Name).PlayAt Sprite.X - Camera.ViewportX, Sprite.Y - Camera.ViewportY
+End Sub
+
+Sub LoadSounds()
+On Error Resume Next
+	LoadSoundEffect "chitter"
+	LoadSoundEffect "hit"
+	LoadSoundEffect "hit2"
+	LoadSoundEffect "chomp"
+	LoadSoundEffect "siphon"
+End Sub
+
+Sub LoadSoundEffect(Name)
+On Error Resume Next
+	HandleID = SoundEngine.LoadSample("/res/sfx/" & Name)
+	SoundFX.Add SoundEngine.Handles(HandleID), Name 
+End Sub

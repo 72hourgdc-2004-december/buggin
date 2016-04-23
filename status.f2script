@@ -1,0 +1,43 @@
+Class StatusDisplay
+    Public Engine
+    Public Icons, Keys, HealthImages, FoodImages
+    
+    Public Sub Class_Initialize()
+    On Error Resume Next
+        ReDim Icons(2)
+        Keys = Array("Z", "X", "C")
+    	Set HealthImages = LoadImage("/res/image/health")
+    	Set FoodImages = LoadImage("/res/image/food")
+    End Sub
+    
+    Public Sub Refresh()
+    On Error Resume Next
+        Set Icons(0) = LoadImage("/res/key/" & WeaponName(Player.Bug.Script.Head.Script.Weapon))
+        Set Icons(1) = LoadImage("/res/key/" & AbilityName(Player.Bug.Script.Thorax.Script.Ability))
+        Set Icons(2) = LoadImage("/res/key/" & WeaponName(Player.Bug.Script.Abdomen.Script.Weapon))
+    End Sub
+    
+    Public Sub Redraw()
+    On Error Resume Next
+        Dim CurrentIcon, I
+        X = 5
+        Y = ScreenHeight - Icons(0).Height - 5
+        I = 0
+        For Each CurrentIcon In Icons
+            Backbuffer.Blit F2Rect(X, Y, CurrentIcon.Width, CurrentIcon.Height, False), , CurrentIcon, 1, BlitMode_SourceAlpha
+            Font.Draw Backbuffer, Keys(I), F2Rect(X + (CurrentIcon.Width / 2), Y - (CurrentIcon.Height / 2), CurrentIcon.Width, CurrentIcon.Height, False)
+            X = X + CurrentIcon.Width + 5
+            I = I + 1
+        Next
+        Health = 5 - Floor((Player.Bug.Script.Health / 100) * 5)
+        If Health < 0 Then Health = 0
+        If Health > 5 Then Health = 5
+        Backbuffer.Blit F2Rect(ScreenWidth - 100, 0, 100, 40, False), F2Rect(Health * 100, 0, 100, 40, False), HealthImages, 1, BlitMode_SourceAlpha
+        Food = Floor((Player.Food / Player.MaxFood) * 7)
+        If Food < 0 Then Food = 0
+        If Food > 7 Then Food = 7
+        Backbuffer.Blit F2Rect(ScreenWidth - 100, 40, 100, 40, False), F2Rect(Food * 100, 0, 100, 40, False), FoodImages, 1, BlitMode_SourceAlpha
+    End Sub
+End Class
+
+Dim StatusOverlay

@@ -1,0 +1,11 @@
+Class BugPart
+	Public Image
+	Public ImageName
+	Public HealthBonus
+	Public StaminaBonus
+	Public SpeedBonus
+	Public TurningSpeedBonus
+	Public StrengthBonus
+	Public DefenseBonus
+	Public Weapon
+End Class

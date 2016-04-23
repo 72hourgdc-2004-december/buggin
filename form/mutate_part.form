@@ -1,0 +1,138 @@
+Public This
+Public Name
+Public Part
+Public fraPart
+Public imgPart
+Public imgFood
+Public cmdPreviousPart
+Public cmdNextPart
+Public lblDescription
+Public pbFood
+Public cmdOK
+Public Parent
+Dim MaxParts
+Public OldPart
+Public OldFood
+
+Public Sub Class_Initialize()
+On Error Resume Next
+    MaxParts = 4
+    Name = "frmMutatePart"
+    Set This = CreateWidget("Window", Name)
+    With This
+        Set .Rectangle = F2Rect(20, 20, 320, 170, False)
+        Set .EventHandler = Me
+        .Text = "Mutate Part"
+        
+        Set imgPart = F2Image(48, 48)
+        imgPart.AlphaChannel = True
+        Set imgFood = F2Image(300, 20)
+        imgFood.AlphaChannel = True
+        
+        Set NewWidget = CreateWidget("Button", "cmdPreviousPart")
+        With NewWidget
+            Set .Rectangle = F2Rect(10, 28, 10, 48, False)
+            Set .EventHandler = Me
+            .Text = "<"
+        End With
+        .Children.Add NewWidget
+
+        Set NewWidget = CreateWidget("Window", "fraPart")
+        With NewWidget
+            Set .Rectangle = F2Rect(35, 28, 48, 48, False)
+            Set .EventHandler = Me
+            Set .Background = imgPart
+            .Text = ""
+        End With
+        .Children.Add NewWidget
+	
+        Set NewWidget = CreateWidget("Button", "cmdNextPart")
+        With NewWidget
+            Set .Rectangle = F2Rect(98, 28, 10, 48, False)
+            Set .EventHandler = Me
+            .Text = ">"
+        End With
+        .Children.Add NewWidget
+	
+        Set NewWidget = CreateWidget("Label", "lblDescription")
+        With NewWidget
+            Set .Rectangle = F2Rect(120, 24, 200, 56, False)
+            Set .EventHandler = Me
+            .Text = "Description"
+        End With
+        .Children.Add NewWidget
+
+        Set NewWidget = CreateWidget("Window", "pbFood")
+        With NewWidget
+            Set .Rectangle = F2Rect(10, 100, 300, 20, False)
+            Set .EventHandler = Me
+            Set .Background = imgFood
+            .Text = "Food: <%=Player.Food%> / <%=Player.MaxFood%>"
+        End With
+        .Children.Add NewWidget
+
+        Set NewWidget = CreateWidget("Button", "cmdOK")
+        With NewWidget
+            Set .Rectangle = F2Rect(10, 140, 300, 20, False)
+            Set .EventHandler = Me
+            .Text = "Okay"
+        End With
+        .Children.Add NewWidget
+
+        This.Container.Sync
+        Refresh
+    End With
+End Sub
+
+Public Sub cmdOK_Click()
+On Error Resume Next
+    PartID = Eval("Player." & Part)
+    If PartID <> OldPart Then
+        Player.Food = OldFood - 50
+    End If
+    If Player.Food > Player.MaxFood Then Player.Food = Player.MaxFood
+	HideForm "frmMutatePart"
+    If (Player.Food >= 50) Then
+        frmMutate.Refresh
+        ShowForm "frmMutate"
+    Else
+        ShowForm "frmCocoon"
+    End If
+    Transitions.Crossfade 0.25
+End Sub
+
+Public Sub cmdPreviousPart_Click()
+On Error Resume Next
+    PartID = Eval("Player." & Part)
+    RunCode "Player." & Part & " = " & WrapInteger(PartID - 1, 1, MaxParts)
+    Player.LoadBug
+    Refresh
+End Sub
+
+Public Sub cmdNextPart_Click()
+On Error Resume Next
+    PartID = Eval("Player." & Part)
+    RunCode "Player." & Part & " = " & WrapInteger(PartID + 1, 1, MaxParts)
+    Player.LoadBug
+    Refresh
+End Sub
+
+Public Sub Refresh()
+On Error Resume Next
+    Player.LoadBug
+    PartID = Eval("Player." & Part)
+    If PartID <> OldPart Then
+        Player.Food = OldFood - 50
+    Else
+        Player.Food = OldFood
+    End If
+    This.Text = "Mutate " & Part
+    Set PartObj = Eval("Player.Bug.Script." & Part)
+    imgPart.Copy PartObj.Poses(1).Frames(1).Image
+    lblDescription.Text = PartObj.Tag
+    imgFood.Clear F2RGB(0,0,0,0)
+    Progress = Player.Food / Player.MaxFood
+    StartColor = F2RGB(255, 255, 255, 0)
+    EndColor = F2RGB(255, 255, 255, Progress * 255)
+    imgFood.GradientFill F2Rect(0, 0, imgFood.Width * Progress, imgFood.Height), Array(StartColor, EndColor, StartColor, EndColor)
+End Sub

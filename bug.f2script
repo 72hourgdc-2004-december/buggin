@@ -1,0 +1,215 @@
+Class HeadScript
+	Public Map
+	Public Object
+	Public Head
+	Public Abdomen
+	Public Thorax
+	Public Speed
+	Public Strength
+	Public FoodCapacity
+	Public Weapon
+	
+	Public Sub Class_Initialize()
+		Speed = 1.0
+		Strength = 1.0
+		FoodCapacity = 1.0
+		Weapon = Weapon_None
+	End Sub
+	
+	Public Sub F2OInit(S, M)
+		Set Me.Object = S
+		Set Me.Map = M
+	End Sub
+	
+	Public Sub Use()
+		UseWeapon Weapon, Thorax
+	End Sub
+End Class
+
+Class ThoraxScript
+	Public Map
+	Public Object
+	Public Head
+	Public Abdomen
+	Public Thorax
+	Public Speed
+	Public Strength
+	Public FoodCapacity
+	Public Ability
+	Public TotalSpeed
+	Public TotalStrength
+	Public TotalFoodCapacity
+	Public Flying
+	Public Health
+	Public AIFunction
+	Public AITarget
+	Public AIState
+
+	Public Function ImplementsMethod(Name)
+	On Error Resume Next   
+		ImplementsMethod = False
+	    Select Case LCase(Trim(Name))
+	    Case "aiupdate", "eat", "siphon", "melee"
+	        ImplementsMethod = True
+	    End Select
+	End Function
+	
+	Public Sub Class_Initialize()
+		Set AITarget = Nothing
+		Set AIFunction = Nothing
+		AIState = 0
+		Speed = 1.0
+		Strength = 1.0
+		FoodCapacity = 1.0
+		Ability = Ability_None
+		Flying = False
+		Health = 100
+	End Sub
+	
+	Public Sub F2OInit(S, M)
+		Set Me.Object = S
+		Set Me.Thorax = S
+		Set Me.Map = M
+	End Sub
+	
+	Public Sub AIUpdate()
+		If AIFunction Is Nothing Then
+		Else
+			AIFunction.Invoke Object
+		End If
+	End Sub
+	
+	Public Sub Use()
+		UseAbility Ability, Object
+	End Sub
+	
+	Public Sub Siphon(TheBug)
+	On Error Resume Next
+		SFXAt "chitter", Object
+		Health = ClipInteger(Health - 15, 0, 100)
+		TheBug.Health = ClipInteger(TheBug.Health + 5, 0, 100)
+		If Health <= 0 Then 
+			Died TheBug
+		End If
+	End Sub
+
+	Public Sub Melee(TheBug)
+		SFXAt "chitter", Object
+		Health = ClipInteger(Health - 12, 0, 100)
+		If Health <= 0 Then 
+			Died TheBug
+		End If
+	End Sub
+	
+	Public Sub Eat(TheBug)
+		SFXAt "chitter", Object
+		Health = ClipInteger(Health - 5, 0, 100)
+		If Health <= 0 Then 
+			Died TheBug
+		End If
+	End Sub
+	
+	Public Sub Died(TheBug)
+		SFXAt "hit2", Object
+		If TheBug Is Player.Bug Then
+			Player.Food = ClipInteger(Player.Food + 15, 0, Player.MaxFood)
+		End If
+		If Object Is Player.Bug Then 
+			GameOver
+		Else
+			Head.Die
+			Abdomen.Die
+			Object.Die
+		End If
+	End Sub
+End Class  
+
+Class AbdomenScript
+	Public Map
+	Public Object
+	Public Head
+	Public Abdomen
+	Public Thorax
+	Public Speed
+	Public Strength
+	Public FoodCapacity
+	Public Weapon
+	
+	Public Sub Class_Initialize()
+		Speed = 1.0
+		Strength = 1.0
+		FoodCapacity = 1.0
+		Weapon = Weapon_None
+	End Sub
+	
+	Public Sub F2OInit(S, M)
+		Set Me.Object = S
+		Set Me.Map = M
+	End Sub
+	
+	Public Sub Use()
+		UseWeapon Weapon, Thorax
+	End Sub
+End Class
+
+Function CreateHead(Speed, Strength, FoodCapacity, Weapon)
+	Set CreateHead = New HeadScript
+	CreateHead.Speed = Speed
+	CreateHead.Strength = Strength
+	CreateHead.FoodCapacity = FoodCapacity
+	CreateHead.Weapon = Weapon
+End Function
+
+Function CreateAbdomen(Speed, Strength, FoodCapacity, Weapon)
+	Set CreateAbdomen = New AbdomenScript
+	CreateAbdomen.Speed = Speed
+	CreateAbdomen.Strength = Strength
+	CreateAbdomen.FoodCapacity = FoodCapacity
+	CreateAbdomen.Weapon = Weapon
+End Function
+
+Function CreateThorax(Speed, Strength, FoodCapacity, Ability)
+	Set CreateThorax = New ThoraxScript
+	CreateThorax.Speed = Speed
+	CreateThorax.Strength = Strength
+	CreateThorax.FoodCapacity = FoodCapacity
+	CreateThorax.Ability = Ability
+End Function
+
+Function CreateBug(Head, Thorax, Abdomen, Color)
+On Error Resume Next
+Dim NewHead, NewAbdomen, NewThorax
+Dim Parts
+	Set Parts = LoadSprites("/sprite/parts/" & Head)
+	Set NewHead = Parts(2)
+	Set Parts = LoadSprites("/sprite/parts/" & Abdomen)
+	Set NewAbdomen = Parts(3)
+	Set Parts = LoadSprites("/sprite/parts/" & Thorax)
+	Set NewThorax = Parts(1)
+	NewHead.Color = Color
+	NewThorax.Color = Color
+	NewAbdomen.Color = Color
+	Set NewThorax.Script.Head = NewHead
+	Set NewThorax.Script.Abdomen = NewAbdomen
+	Set NewAbdomen.Script.Head = NewHead
+	Set NewAbdomen.Script.Thorax = NewThorax
+	Set NewAbdomen.Script.Abdomen = NewAbdomen
+	Set NewHead.Script.Head = NewHead
+	Set NewHead.Script.Thorax = NewThorax
+	Set NewHead.Script.Abdomen = NewAbdomen
+	NewThorax.Script.TotalStrength = (NewHead.Script.Strength + NewAbdomen.Script.Strength + NewThorax.Script.Strength) / 3
+	NewThorax.Script.TotalSpeed = (NewHead.Script.Speed + NewAbdomen.Script.Speed + NewThorax.Script.Speed) / 3
+	NewThorax.Script.TotalFoodCapacity = (NewHead.Script.FoodCapacity + NewAbdomen.Script.FoodCapacity + NewThorax.Script.FoodCapacity) / 3
+	NewThorax.States(1).MaxVelocity = NewThorax.Script.TotalSpeed * 2
+	NewThorax.States(2).MaxVelocity = NewThorax.Script.TotalSpeed * 2
+	NewThorax.States(3).MaxVelocity = NewThorax.Script.TotalSpeed * 3
+	Set CreateBug = NewThorax
+End Function
+
+Sub AddBug(Bug, Layer, X, Y)
+	Map.AddSprite Bug.Script.Head, Layer, X, Y
+	Map.AddSprite Bug.Script.Abdomen, Layer, X, Y
+	Map.AddSprite Bug, Layer, X, Y
+	Bug.Script.Head.Attach Bug
+	Bug.Script.Abdomen.Attach Bug
+End Sub

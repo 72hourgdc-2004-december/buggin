@@ -1,0 +1,28 @@
+Sub DefineControls()
+On Error Resume Next
+	InitJoystick
+	Controls.Clear	
+
+	DefineControl "Up", Key("Up")
+	Controls("Up").Repeat = True
+	DefineControl "Down", Key("Down")
+	Controls("Down").Repeat = True
+	DefineControl "Left", Key("Left")
+	Controls("Left").Repeat = True
+	DefineControl "Right", Key("Right")
+	Controls("Right").Repeat = True
+    DefineControl "Head", Key("Z")
+    DefineControl "Thorax", Key("X")
+	DefineControl "Abdomen", Key("C")   
+	
+	BindKey Key("Escape"), "QuitGame"
+
+	Joystick.Bindings.Rebind
+End Sub   
+
+Sub DefineControl(Name, Key)
+On Error Resume Next
+	Controls.Add F2Control(Name), Name
+	Joystick.AddBinding Name, Controls(Name)
+	BindKey Key, Controls(Name)
+End Sub

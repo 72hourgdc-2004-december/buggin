@@ -1,0 +1,73 @@
+Function FindFood(Bug, FoodClass)
+	Set FindFood = Map.Layers(Bug.Layer).Sprites.GetClosest(Bug, False, FoodClass) 
+End Function
+
+Sub BugAI_Ant(Bug)
+	With Bug
+		If .Script.AITarget Is Nothing Then
+			.Script.AIState = 0
+			Set .Script.AITarget = FindFood(Bug, 4)
+		End If
+		If Not (.Script.AITarget Is Nothing) Then
+			Dist = DistanceBetween(.X, .Y, .Script.AITarget.X, .Script.AITarget.Y)
+			If Dist < 16 Then
+				.Path.Clear
+				.Script.AITarget.Action Bug, "Eat"
+				Set .Script.AITarget = Nothing
+			Else
+				.Path.Clear
+				.Path.Add .Script.AITarget.X, .Script.AITarget.Y
+			End If
+			If (Abs(Dist - .Script.AIState) < 5) And (Dist > 16) Then
+				Set .Script.AITarget = Nothing
+				.Path.Clear
+				.Path.Add Random(0, Map.MaxX), Random(0, Map.MaxY)
+			End If
+			.Script.AIState = Dist
+		End If
+	End With
+End Sub
+
+Sub BugAI_Beetle(Bug)
+	With Bug
+		If .Script.AITarget Is Nothing Then
+			.Script.AIState = 0
+			If Random(1, 7) < 3 Then
+				Set .Script.AITarget = FindFood(Bug, 4)
+			Else
+				Set .Script.AITarget = FindFood(Bug, 2)
+			End If
+		End If
+		If Not (.Script.AITarget Is Nothing) Then
+			Dist = DistanceBetween(.X, .Y, .Script.AITarget.X, .Script.AITarget.Y)
+			If Dist < 16 Then
+				.Path.Clear
+				If .Script.AITarget.Class = 2 Then
+					.Script.AITarget.Action Bug, "Melee"
+				Else
+					.Script.AITarget.Action Bug, "Eat"
+				End If
+				Set .Script.AITarget = Nothing
+			Else
+				.Path.Clear
+				.Path.Add .Script.AITarget.X, .Script.AITarget.Y
+			End If
+			If (Abs(Dist - .Script.AIState) < 5) And (Dist > 16)  Then
+				Set .Script.AITarget = Nothing
+				.Path.Clear
+				.Path.Add Random(0, Map.MaxX), Random(0, Map.MaxY)
+			End If
+			.Script.AIState = Dist
+		End If
+	End With
+End Sub
+
+Sub BugAI_Bee(Bug)
+	With Bug
+	End With
+End Sub
+
+Sub BugAI_Mosquito(Bug)
+	With Bug
+	End With
+End Sub

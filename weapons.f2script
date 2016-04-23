@@ -1,0 +1,50 @@
+Weapon_None = 0
+Weapon_Melee = 1
+Weapon_Sting = 2
+Weapon_Siphon = 3
+Weapon_Eat = 4
+
+Function WeaponName(Weapon)
+    Select Case Weapon
+    Case Weapon_None
+        WeaponName = "none"
+    Case Weapon_Eat
+        WeaponName = "eat"
+    Case Weapon_Melee
+        WeaponName = "melee"
+    Case Weapon_Sting
+        WeaponName = "sting"
+    Case Weapon_Siphon
+        WeaponName = "siphon"
+    End Select
+End Function
+
+Sub UseWeapon(Weapon, Bug)
+    Select Case Weapon
+    Case Weapon_Eat
+		SFXAt "chomp", Bug
+		If Bug.ActionAhead(4, "Eat") Then Exit Sub
+		If Bug.ActionAhead(12, "Eat") Then Exit Sub
+		If Bug.ActionAhead(20, "Eat") Then Exit Sub
+		If Bug.ActionAhead(4, "Eat", 2) Then Exit Sub
+		If Bug.ActionAhead(12, "Eat", 2) Then Exit Sub
+		If Bug.ActionAhead(20, "Eat", 2) Then Exit Sub
+    Case Weapon_Melee
+		SFXAt "hit", Bug
+		If Bug.ActionAhead(4, "Melee", 2) Then Exit Sub
+		If Bug.ActionAhead(12, "Melee", 2) Then Exit Sub
+		If Bug.ActionAhead(16, "Melee", 2) Then Exit Sub
+		If Bug.ActionAhead(4, "Eat") Then Exit Sub
+		If Bug.ActionAhead(12, "Eat") Then Exit Sub
+		If Bug.ActionAhead(20, "Eat") Then Exit Sub
+    Case Weapon_Sting
+    Case Weapon_Siphon
+		SFXAt "siphon", Bug
+		If Bug.ActionAhead(4, "Siphon", 2) Then Exit Sub
+		If Bug.ActionAhead(12, "Siphon", 2) Then Exit Sub
+		If Bug.ActionAhead(4, "Eat") Then Exit Sub
+		If Bug.ActionAhead(12, "Eat") Then Exit Sub
+		If Bug.ActionAhead(20, "Eat") Then Exit Sub
+	Case Else    	
+    End Select
+End Sub

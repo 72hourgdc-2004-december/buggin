@@ -1,0 +1,85 @@
+Public This
+Public Name
+Public lblHealth
+Public lblFood
+Public cmdRecover
+Public cmdMutate
+Public cmdOK
+Public Parent
+
+Public Sub Class_Initialize()
+On Error Resume Next
+    Name = "frmCocoon"
+    Set This = CreateWidget("Container", Name)
+    With This
+        Set .Rectangle = F2Rect(0, 0, 400, 300, False)
+        Set .EventHandler = Me
+
+        Set NewWidget = CreateWidget("Label", "lblHealth")
+        With NewWidget
+            Set .Rectangle = F2Rect(120, 20, 260, 20, False)
+            Set .EventHandler = Me
+            .Text = "Health: <%=Player.Bug.Script.Health%> / 100"
+        End With
+        .Children.Add NewWidget
+
+        Set NewWidget = CreateWidget("Label", "lblFood")
+        With NewWidget
+            Set .Rectangle = F2Rect(120, 40, 260, 20, False)
+            Set .EventHandler = Me
+            .Text = "Food: <%=Player.Food%> / <%=Player.MaxFood%>"
+        End With
+        .Children.Add NewWidget
+
+        Set NewWidget = CreateWidget("Button", "cmdRecover")
+        With NewWidget
+            Set .Rectangle = F2Rect(120, 70, 260, 20, False)
+            Set .EventHandler = Me
+            .Text = "Recover 10 Health (5 Food)"
+        End With
+        .Children.Add NewWidget
+
+        Set NewWidget = CreateWidget("Button", "cmdMutate")
+        With NewWidget
+            Set .Rectangle = F2Rect(120, 105, 260, 20, False)
+            Set .EventHandler = Me
+            .Text = "Mutate (50 Food Per Mutation)"
+        End With
+        .Children.Add NewWidget
+
+        Set NewWidget = CreateWidget("Button", "cmdOK")
+        With NewWidget
+            Set .Rectangle = F2Rect(20, 260, 360, 20, False)
+            Set .EventHandler = Me
+            .Text = "Emerge"
+        End With
+        .Children.Add NewWidget
+
+        This.Container.Sync
+        Refresh
+    End With
+End Sub
+
+Public Sub cmdRecover_Click()
+On Error Resume Next
+    If Player.Food < 5 Then Exit Sub
+    Player.Food = Player.Food - 5
+    Player.Bug.Script.Health = ClipInteger(Player.Bug.Script.Health + 10, 0, 100)
+End Sub
+
+Public Sub cmdMutate_Click()
+On Error Resume Next
+    If Player.Food < 50 Then Exit Sub
+    HideForm "frmCocoon"
+    ShowForm "frmMutate"
+    Transitions.Crossfade 0.25
+End Sub
+
+Public Sub cmdOK_Click()
+On Error Resume Next
+    Break "Cocoon"
+End Sub
+
+Public Sub Refresh()
+On Error Resume Next
+End Sub

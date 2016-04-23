@@ -1,0 +1,147 @@
+Include "uikit_plugin" 
+Include "controls"
+Include "player"
+Include "parts"
+Include "weapons"
+Include "abilities"
+Include "bug"
+Include "ai"
+Include "status"
+Include "sounds"
+
+Dim CocoonEnabled
+Dim FoodSprites
+
+Sub Engine_Init()
+On Error Resume Next
+	InitializeUIKit
+	LoadFonts "/res/font/"
+    LoadSkins "/res/uikit/"
+    LoadSounds
+    DefineControls
+    SmoothScaling = True
+    HarassCPU = True
+    Camera.ConstrainToMap = True
+    Set FoodSprites = LoadSprites("/sprite/food")
+End Sub
+
+Sub Engine_Start()
+On Error Resume Next
+    DefaultBGMVolume = 96
+	PlayBGM "/res/sfx/ambientsound2"
+    BGMVolume = 96
+	Camera.Alpha = 0
+	CocoonEnabled = False
+	Set Player = New GamePlayer
+	Set StatusOverlay = New StatusDisplay
+    Player.LoadBug
+	LoadForm "form/cocoon.form"  
+	LoadForm "form/mutate.form"  
+	LoadForm "form/mutate_part.form"
+	Player.X = 300
+	Player.Y = 300
+	Player.L = 1
+	'ShowIntro
+    Player.Food = 0
+	Player.Cocoon
+	For Spawns = 0 To 20
+		SpawnPollen
+	Next
+	For Spawns = 0 To 7
+		SpawnEnemy 2, BindEvent("BugAI_Ant")
+	Next
+	For Spawns = 0 To 3
+		SpawnEnemy 1, BindEvent("BugAI_Beetle")
+	Next
+	CreateTimer "Pollen Spawn Timer", 4000, "SpawnPollen"
+	CreateTimer "Enemy Spawn Timer", 20000, "SpawnRandomEnemy"
+End Sub
+
+Sub Engine_ControlActivate(Control)
+	Select Case Control.Name
+	Case "Head"
+		Player.Bug.Script.Head.Script.Use
+	Case "Thorax"
+		Player.Bug.Script.Use
+	Case "Abdomen"
+		Player.Bug.Script.Abdomen.Script.Use
+	Case Else
+	End Select
+End Sub
+
+Sub QuitGame()
+	Transitions.FadeOut 1.0
+	Quit
+End Sub
+
+Sub ShowIntro()
+	ShowPicture 0, LoadImage("/res/image/squared_logo"), 0, 0
+	Transitions.FadeIn 0.5
+	DelayEvent 4000, "Break"
+	Subthread
+	Transitions.FadeOut 0.5
+	HidePicture 0
+	DelayEvent 1000, "Break"
+	Subthread
+	ShowPicture 0, LoadImage("/res/image/team_logo"), 0, 0
+	Transitions.FadeIn 0.5
+	DelayEvent 4000, "Break"
+	Subthread
+	Transitions.FadeOut 0.5
+	HidePicture 0
+	DelayEvent 2000, "Break"
+	Subthread
+End Sub
+
+Sub GameOver()
+    Map.Paused = True
+    Transitions.FadeOut 2.0
+    UnHookEvents StatusOverlay
+    ShowPicture 0, LoadImage("/res/image/game_over"), 0, 0
+    Transitions.FadeIn 1.0
+	DelayEvent 10000, "Break"
+	Subthread
+    QuitGame
+End Sub
+
+Sub SpawnPollen()
+	If Map.Paused Then Exit Sub
+	If Map.Layers(1).Sprites.Count < 250 Then
+		SpawnArea = Random(2, Map.Areas.Count)
+		With Map.Areas(SpawnArea)
+			SpawnX = Random(.X, .X + .Width)
+			SpawnY = Random(.Y, .Y + .Height)
+		End With
+		Set NewPollen = FoodSprites(1).Duplicate
+		Map.AddSprite NewPollen, 1, SpawnX, SpawnY
+	End If
+	If Map.Layers(1).Sprites.Count < 300 Then
+		SpawnX = Random(0, Map.MaxX)
+		SpawnY = Random(0, Map.MaxY)
+		Set NewPollen = FoodSprites(1).Duplicate
+		Map.AddSprite NewPollen, 1, SpawnX, SpawnY
+	End If
+End Sub
+
+Sub SpawnEnemy(EnemyType, AIFunction)
+On Error Resume Next
+	If Map.Layers(1).Sprites.Count < 310 Then
+		TintColor = F2RGB(Random(127, 255), Random(0, 127), 0, Random(40, 80))
+		Set NewEnemy = CreateBug(EnemyType, EnemyType, EnemyType, TintColor)
+		NewEnemy.AIUpdateRate = Random(30, 120)
+		Set NewEnemy.Script.AIFunction = AIFunction
+		SpawnX = Random(0, Map.MaxX)
+		SpawnY = Random(0, Map.MaxY)		
+        AddBug NewEnemy, 1, SpawnX, SpawnY
+	End If
+End Sub       
+
+Sub SpawnRandomEnemy()
+On Error Resume Next
+	If Map.Paused Then Exit Sub
+	If Random(1, 4) < 2 Then
+		SpawnEnemy 1, BindEvent("BugAI_Beetle")
+	Else
+		SpawnEnemy 2, BindEvent("BugAI_Ant")
+	End If
+End Sub

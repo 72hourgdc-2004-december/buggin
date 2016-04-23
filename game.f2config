@@ -1,0 +1,23 @@
+Show Configuration Dialog:Yes
+Title:Buggin'
+Screen Mode:400x300 @ 32
+Framerate:60fps
+Special FX:Yes
+Output Plugin:DirectDraw
+Vertical Sync:No
+Show Framerate:Yes
+Show Titlebar:Yes
+Default Transition:Crossfade
+Default Transition Length:1.0
+Default Map:/map/test
+Default Font:/res/font/normal
+Default Window Skin:/res/window/default
+Default Start Position:0 @ 0, 0
+Enable Sound:Yes
+Music Volume:0.65
+Language:VBScript
+Icon:/icon.ico
+Default Cursor:
+Screen Scale Ratio:1.0
+Output Scaling Mode:Fast
+Fullscreen:No

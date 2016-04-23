@@ -1,0 +1,39 @@
+Ability_None = 0
+Ability_Fly = 1
+
+Function AbilityName(Ability)
+    Select Case Ability
+    Case Ability_None
+        AbilityName = "none"
+    Case Ability_Fly
+        AbilityName = "fly"
+    End Select
+End Function
+
+Sub UseAbility(Ability, Bug)
+	Select Case Ability
+	Case Ability_Fly
+		UseAbility_Fly Bug
+	Case Else
+	End Select
+End Sub
+
+Sub UseAbility_Fly(Bug)
+	Bug.Script.Flying = Not Bug.Script.Flying
+	If Bug.Script.Flying Then
+		Map.Layers(2).Alpha = 1
+		Map.Layers(1).Sprites.MoveTo Bug.Script.Head, 2
+		Map.Layers(1).Sprites.MoveTo Bug.Script.Abdomen, 2
+		Map.Layers(1).Sprites.MoveTo Bug, 2
+		Bug.State = 3
+		Bug.Animate = True
+	Else
+		Map.Layers(2).Alpha = 0.5
+		Map.Layers(2).Sprites.MoveTo Bug.Script.Head, 1
+		Map.Layers(2).Sprites.MoveTo Bug.Script.Abdomen, 1
+		Map.Layers(2).Sprites.MoveTo Bug, 1
+		Bug.State = 1
+		Bug.AnimateWhileMoving = True
+		Bug.AnimateWhileStopped = False
+	End If
+End Sub

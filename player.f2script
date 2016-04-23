@@ -1,0 +1,96 @@
+Class GamePlayer
+	Public Bug
+	Public Controller
+	Public Food, MaxFood
+    Public Head, Thorax, Abdomen
+    Public X, Y, L
+    
+    Public Sub Class_Initialize()
+        Food = 0
+        MaxFood = 100
+        Head = 2
+        Thorax = 2
+        Abdomen = 2
+        X = 300
+        Y = 300
+        L = 1
+    End Sub
+    
+    Public Sub LoadBug()
+    On Error Resume Next
+    	If Not (Bug Is Nothing) Then
+    		Bug.Free
+    		Set Bug = Nothing
+    	End If
+        Set Bug = CreateBug(Head, Thorax, Abdomen, 0)
+        With Bug
+            .Initialize
+            .Load
+            .Poses.LoadGraphics
+        End With
+        With Bug.Script.Head
+            .Initialize
+            .Load
+            .Poses.LoadGraphics
+        End With
+        With Bug.Script.Abdomen
+            .Initialize
+            .Load
+            .Poses.LoadGraphics
+        End With
+        MaxFood = ToInteger(100 * Bug.Script.FoodCapacity)
+    End Sub
+    
+    Public Sub Init()
+        Set Controller = F2Controller(Bug, Camera)
+        AddBug Bug, L, X, Y
+        HookEvents Controller
+        StatusOverlay.Refresh
+    End Sub
+    
+    Public Sub Uninit()
+    On Error Resume Next
+    	If Not (Controller Is Nothing) Then UnHookEvents Controller
+    	If Bug.Layer > 0 Then
+	        X = Bug.X
+ 	  		Y = Bug.Y
+  		    L = Bug.Layer
+	        With Map.Layers(L).Sprites
+	            .Remove .Find(Bug.Script.Head)
+	            .Remove .Find(Bug.Script.Abdomen)
+	            .Remove .Find(Bug)
+	        End With
+	    End If
+    End Sub
+    
+    Public Sub Cocoon()
+    On Error Resume Next
+    	CocoonEnabled = False
+    	Uninit
+    	Camera.Alpha = 0
+    	Map.Paused = True
+    	ShowPicture 0, LoadImage("/res/image/cocoon"), 0, 0
+    	ShowDesktop
+    	ShowForm "frmCocoon"
+    	UnHookEvents StatusOverlay
+    	Transitions.FadeIn 1.0
+    	Subthread "Cocoon"
+    	Transitions.FadeOut 1.0
+    	Wait 1.0
+		HideForm "frmCocoon"
+ 	    HideDesktop
+ 	    HidePicture 0
+    	HookEvents StatusOverlay
+    	Map.Paused = False
+ 	    Camera.Alpha = 1
+ 	    X = 476
+ 	    Y = 340
+ 	    Init
+ 	    Engine.Sync
+    	Transitions.FadeIn 1.0
+    	CocoonEnabled = True
+    End Sub
+    
+End Class 
+
+Dim Player

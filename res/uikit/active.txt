@@ -1,0 +1,3 @@
+TextColor:255, 255, 255, 255;
+Font:Normal;
+File:/res/window/default;

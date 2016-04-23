@@ -1,0 +1,118 @@
+Public This
+Public Name
+Public imgHead
+Public imgThorax
+Public imgAbdomen
+Public cmdHead
+Public cmdThorax
+Public cmdAbdomen
+Public cmdOK
+Public Parent
+Dim MaxParts
+
+Public Sub Class_Initialize()
+On Error Resume Next
+    MaxParts = 4
+    Name = "frmMutate"
+    Set This = CreateWidget("Window", Name)
+    With This
+        Set .Rectangle = F2Rect(0, 0, 80, 245, False)
+        Set .EventHandler = Me
+        .Text = "Mutate"
+        
+        Set imgHead = F2Image(48, 48)
+        imgHead.AlphaChannel = True
+        Set imgThorax = F2Image(48, 48)
+        imgThorax.AlphaChannel = True
+        Set imgAbdomen = F2Image(48, 48)
+        imgAbdomen.AlphaChannel = True
+        
+        Set NewWidget = CreateWidget("Button", "cmdHead")
+        With NewWidget
+            Set .Rectangle = F2Rect(16, 27, 48, 48, False)
+            Set .EventHandler = Me
+            Set .Image = imgHead
+            .Text = ""
+        End With
+        .Children.Add NewWidget
+
+        Set NewWidget = CreateWidget("Button", "cmdThorax")
+        With NewWidget
+            Set .Rectangle = F2Rect(16, 89, 48, 48, False)
+            Set .EventHandler = Me
+            Set .Image = imgThorax
+            .Text = ""
+        End With
+        .Children.Add NewWidget
+
+        Set NewWidget = CreateWidget("Button", "cmdAbdomen")
+        With NewWidget
+            Set .Rectangle = F2Rect(16, 151, 48, 48, False)
+            Set .EventHandler = Me
+            Set .Image = imgAbdomen
+            .Text = ""
+        End With
+        .Children.Add NewWidget
+
+        Set NewWidget = CreateWidget("Button", "cmdOK")
+        With NewWidget
+            Set .Rectangle = F2Rect(10, 215, 60, 20, False)
+            Set .EventHandler = Me
+            .Text = "Okay"
+        End With
+        .Children.Add NewWidget
+
+        This.Container.Sync
+        Refresh
+    End With
+End Sub
+
+Public Sub cmdHead_Click()
+On Error Resume Next
+	HideForm "frmMutate"
+    frmMutatePart.Part = "Head"
+    frmMutatePart.OldPart = Player.Head
+    frmMutatePart.OldFood = Player.Food
+    frmMutatePart.Refresh
+    ShowForm "frmMutatePart"
+    Transitions.Crossfade 0.25
+End Sub
+
+Public Sub cmdThorax_Click()
+On Error Resume Next
+	HideForm "frmMutate"
+    frmMutatePart.Part = "Thorax"
+    frmMutatePart.OldPart = Player.Thorax
+    frmMutatePart.OldFood = Player.Food
+    frmMutatePart.Refresh
+    ShowForm "frmMutatePart"
+    Transitions.Crossfade 0.25
+End Sub
+
+Public Sub cmdAbdomen_Click()
+On Error Resume Next
+	HideForm "frmMutate"
+    frmMutatePart.Part = "Abdomen"
+    frmMutatePart.OldPart = Player.Abdomen
+    frmMutatePart.OldFood = Player.Food
+    frmMutatePart.Refresh
+    ShowForm "frmMutatePart"
+    Transitions.Crossfade 0.25
+End Sub
+
+Public Sub cmdOK_Click()
+On Error Resume Next
+    HideForm "frmMutate"
+    ShowForm "frmCocoon"
+    Transitions.Crossfade 0.25
+End Sub
+
+Public Sub Refresh()
+On Error Resume Next
+    Player.LoadBug
+	With Player.Bug.Script
+		imgHead.Copy .Head.Poses(1).Frames(1).Image
+		imgThorax.Copy .Thorax.Poses(1).Frames(1).Image
+		imgAbdomen.Copy .Abdomen.Poses(1).Frames(1).Image
+	End With
+End Sub
